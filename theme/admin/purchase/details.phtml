@@ -1,0 +1,220 @@
+<?php
+    $status_label = [
+        'Canceled',
+        'Draft',
+        'Waiting for payment',
+        'Already paid by customer',
+        'On the way',
+        'Received by customer'
+    ];
+?>
+<nav class="navbar navbar-expand-lg navbar-light bg-white navbar-shadow">
+    <div class="navbar-multiline mr-auto">
+        <span class="navbar-brand" href="#0"><?= $purchase->invoice ?></span>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?= $this->router->to('adminHome') ?>">Home</a></li>
+                <li class="breadcrumb-item"><a href="<?= $this->router->to('adminProduct') ?>">Product</a></li>
+                <li class="breadcrumb-item"><a href="<?= $this->router->to('adminPurchase') ?>">Purchase</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Details</li>
+            </ol>
+        </nav>
+    </div>
+</nav>
+
+<div class="container p-3">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Bill to</strong><br>
+                                <small><?= $purchase->user->fullname ?? $purchase->user->name ?></small>
+                            </p>
+                            <p>
+                                <small>
+                                    <?= $purchase->destination->street ?>,
+                                    <?= $purchase->destination->city->name ?>,
+                                    <?= $purchase->destination->province->name ?>,
+                                    <?= $purchase->destination->zipcode ?>
+                                    <br>
+                                    att: <?= $purchase->destination->recipient ?>
+                                    ( <?= $purchase->destination->phone ?> )
+                                </small>
+                            </p>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <p><strong>Invoice</strong><br><small><?= $purchase->invoice ?></small></p>
+                            <p><strong>Date</strong><br><small><?= $purchase->created->format('M d, Y H:i') ?></small></p>
+                            <p><strong>Status</strong><br><small><?= $status_label[$purchase->status->value] ?></small></p>
+                        </div>
+                    </div>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th scope="col">Product</th>
+                                <th class="text-right" scope="col">Qty</th>
+                                <th class="text-right" scope="col">Price</th>
+                                <th class="text-right" scope="col">Tax</th>
+                                <th class="text-right" scope="col">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach($products as $pitem): ?>
+                                <tr>
+                                    <td>
+                                        <?= $pitem->product->name ?>
+                                        <?php if(!empty($pitem->variant)): ?>
+                                            Variant: <?= $pitem->variant->name ?>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-right"><?= $pitem->quantity->format() ?></td>
+                                    <td class="text-right"><?= $pitem->price->format() ?></td>
+                                    <td class="text-right">
+                                        ( <?= $pitem->tax_percent ?>% ) <?= $pitem->tax_amount->format() ?>
+                                    </td>
+                                    <td class="text-right"><?= $pitem->total->format() ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            <tr class="table-secondary">
+                                <td colspan="2" class="text-right">
+                                    <strong>Total</strong>
+                                </td>
+                                <td class="text-right">
+                                    <strong><?= $purchase->price->format() ?></strong>
+                                </td>
+                                <td class="text-right">
+                                    <strong><?= $purchase->tax->format() ?></strong>
+                                </td>
+                                <td class="text-right">
+                                    <strong>
+                                        <?= number_format($purchase->price->value + $purchase->tax->value) ?>
+                                    </strong>
+                                </td>
+                            </tr>
+                            <?php if($purchase->courier_fee): ?>
+                                <tr>
+                                    <td colspan="2" class="text-right">
+                                        Courier fee
+                                    </td>
+                                    <td class="text-right" colspan="3"><?= $purchase->courier_fee->format() ?>
+                                </tr>
+                            <?php endif; ?>
+                            <tr class="table-secondary">
+                                <td colspan="2" class="text-right">
+                                    <strong>Purchase total</strong>
+                                </td>
+                                <td class="text-right" colspan="3">
+                                    <strong><?= $purchase->total->format() ?></strong>
+                                </td>
+                            </tr>
+                            <?php if($payment): ?>
+                                <tr>
+                                    <td colspan="2" class="text-right">
+                                        Payment fee
+                                    </td>
+                                    <td class="text-right" colspan="3">
+                                        <?= $payment->fee->format() ?>
+                                    </td>
+                                </tr>
+                                <tr class="table-secondary">
+                                    <td colspan="2" class="text-right">
+                                        <strong>Grand total</strong>
+                                    </td>
+                                    <td class="text-right" colspan="3">
+                                        <strong><?= $payment->total->format() ?></strong>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <?php if($payment): ?>
+                        <h6 class="card-subtitle mb-2 text-muted"><?= $payment->method->type ?></h6>
+                        <?php if(isset($payment->method->bank)): ?>
+                            <?= $payment->method->bank->code ?><br>
+                            <?= $payment->method->bank->name ?><br>
+                            <?= $payment->method->bank->account->name ?><br>
+                            <?= $payment->method->bank->account->number ?>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <h6 class="card-subtitle mb-2 text-muted">Payment method</h6>
+                        <em>No payment method found</em>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php if($purchase->status->value > 2): ?>
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        Courier
+                    </h6>
+
+                    <div>
+                        <?= $purchase->courier->provider->name ?>
+                        -
+                        <?= $purchase->courier->package->name ?>
+                    </div>
+                    <a href="#0" title="Set or change courier receipt number" id="courier-btn" onclick="showCourierForm()">
+                        <?php if($purchase->courier_receipt->value): ?>
+                            <?= $purchase->courier_receipt ?>
+                        <?php else: ?>
+                            Set curier receipt number
+                        <?php endif; ?>
+                    </a>
+                    <form class="needs-validation main hidden" novalidate method="POST" id="courier-form" action="<?= $this->router->to('adminPurchaseCourier', ['id' => $purchase->id]) ?>">
+                        <?= $form->field('courier_receipt') ?>
+                        <?= $form->csrfField('noob') ?>
+                        <div class="text-right">
+                            <button class="btn btn-secondary" type="button" onclick="hideCourierForm()">Cancel</button>
+                            <button class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+
+                    <?php if($tracks): ?>
+                        <hr>
+                        <ul class="list-group">
+                            <?php foreach($tracks as $track): ?>
+                            <li class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1"><?= hs($track['note']) ?></h5>
+                                    <small>
+                                        <?php
+                                            $date = strtotime($track['date']);
+                                            echo date('M d H:i', $date);
+                                        ?>
+                                    </small>
+                                </div>
+                                <p class="mb-1"><?= hs($track['desc']) ?></p>
+                                <?php if($track['info']): ?>
+                                    <small><?= $track['info'] ?></small>
+                                <?php endif; ?>
+                            </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showCourierForm() {
+        $('#courier-btn').addClass('hidden')
+        $('#courier-form').removeClass('hidden')
+        $('#admin-purchase-courier-fld-courier-receipt').select()
+    }
+    function hideCourierForm() {
+        $('#courier-form').addClass('hidden')
+        $('#courier-btn').removeClass('hidden')
+    }
+</script>

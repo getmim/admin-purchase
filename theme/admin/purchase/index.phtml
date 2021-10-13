@@ -1,0 +1,109 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white navbar-shadow">
+    <div class="navbar-multiline mr-auto">
+        <span class="navbar-brand" href="#0">Purchases</span>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?= $this->router->to('adminHome') ?>">Home</a></li>
+                <li class="breadcrumb-item"><a href="<?= $this->router->to('adminProduct') ?>">Product</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Purchase</li>
+            </ol>
+        </nav>
+    </div>
+</nav>
+
+<div class="container p-3">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-3">
+                <form method="GET" class="card-body">
+                    <h5 class="card-title">Search</h5>
+                    <?= $form->field('q') ?>
+                    <?= $form->field('status') ?>
+                    <div class="text-right">
+                        <button class="btn btn-primary">Find</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div>Total item: <?= number_format($total); ?></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <?php if($purchases): ?>
+                <?php $csrf = $form->csrfToken(); ?>
+                <ul class="list-group list-group-flush card mb-3">
+                    <?php foreach($purchases as $purchase): ?>
+                        <li class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">
+                                    <?= $purchase->invoice->safe ?>
+                                </h5>
+                                <div>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Action">
+                                        <a href="<?= $this->router->to('adminPurchaseDetails', ['id'=>$purchase->id]) ?>" class="btn btn-secondary" title="Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <small>
+                                <span title="Created">
+                                    <i class="far fa-calendar-plus"></i>
+                                    <?= $purchase->created->format('M d, Y H:i') ?>
+                                </span>
+                                &middot;
+                                <span title="Creator">
+                                    <i class="fas fa-user"></i>
+                                    <?= $purchase->user->fullname->safe ?>
+                                </span>
+
+                                <?php if($purchase->status->value == 2): ?>
+                                    &middot;
+                                    <span title="Status" class="text-warning">
+                                        Waiting for payment
+                                    </span>
+                                <?php endif; ?>
+                                <?php if($purchase->status->value == 3): ?>
+                                    &middot;
+                                    <span title="Status" class="text-info">
+                                        Already paid by customer
+                                    </span>
+                                <?php endif; ?>
+                                <?php if($purchase->status->value == 4): ?>
+                                    &middot;
+                                    <span title="Status" class="text-primary">
+                                        On the way
+                                    </span>
+                                <?php endif; ?>
+                                <?php if($purchase->status->value == 5): ?>
+                                    &middot;
+                                    <span title="Status" class="text-secondary">
+                                        Received by customer
+                                    </span>
+                                <?php endif; ?>
+                                <?php if($purchase->status->value == 6): ?>
+                                    &middot;
+                                    <span title="Status" class="text-secondary">
+                                        On the way back to merchant
+                                    </span>
+                                <?php endif; ?>
+                                <?php if($purchase->status->value == 7): ?>
+                                    &middot;
+                                    <span title="Status" class="text-secondary">
+                                        Returned back to merchant
+                                    </span>
+                                <?php endif; ?>
+                            </small>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+
+            <?php if($pages): ?>
+                <?= $this->partial('shared/pagination', ['pages'=>$pages, 'align'=>'right']); ?>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>

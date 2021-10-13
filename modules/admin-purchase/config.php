@@ -33,6 +33,9 @@ return [
             ],
             [
                 'admin-product' => null
+            ],
+            [
+                'lib-courier' => null
             ]
         ],
         'optional' => []

@@ -13,7 +13,9 @@ use LibPagination\Library\Paginator;
 use Purchase\Model\Purchase;
 use Purchase\Model\PurchasePayment;
 use Purchase\Model\PurchaseProduct;
+use Purchase\Model\PurchaseDelivery;
 use LibCourier\Library\Courier;
+use LibWorker\Library\Worker;
 
 class PurchaseController extends \Admin\Controller
 {
@@ -95,11 +97,19 @@ class PurchaseController extends \Admin\Controller
             'courier_receipt' => $valid->courier_receipt
         ];
 
-        if ($purchase->status == 3) {
+        if ($purchase->status == 3 && !module_exists('cli-purchase-delivery')) {
             $set['status'] = 4;
         }
 
         Purchase::set($set, ['id' => $purchase->id]);
+
+        // register the worker if module exists
+        if (module_exists('cli-purchase-delivery')) {
+            $name = 'purchase-delivery-' . $purchase->id;
+            Worker::remove($name);
+            $route = ['cliPurchaseDeliveryCheck', ['id' => $purchase->id]];
+            Worker::add($name, $route, [], time());
+        }
 
         $next = $this->router->to('adminPurchaseDetails', ['id' => $purchase->id]);
 
@@ -139,10 +149,9 @@ class PurchaseController extends \Admin\Controller
         }
 
         $params['tracks'] = null;
-        if ($purchase->courier_receipt) {
-            $courier_code = $purchase->courier->provider->code;
-            $courier_receipt = $purchase->courier_receipt;
-            $params['tracks'] = Courier::track($courier_code, $courier_receipt);
+        $delivery = PurchaseDelivery::getOne(['purchase' => $purchase->id]);
+        if ($delivery) {
+            $params['tracks'] = json_decode($delivery->data);
         }
 
         $this->resp('purchase/details', $params);

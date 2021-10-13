@@ -186,17 +186,17 @@
                             <?php foreach($tracks as $track): ?>
                             <li class="list-group-item">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1"><?= hs($track['note']) ?></h5>
+                                    <h5 class="mb-1"><?= hs($track->note) ?></h5>
                                     <small>
                                         <?php
-                                            $date = strtotime($track['date']);
+                                            $date = strtotime($track->date);
                                             echo date('M d H:i', $date);
                                         ?>
                                     </small>
                                 </div>
-                                <p class="mb-1"><?= hs($track['desc']) ?></p>
-                                <?php if($track['info']): ?>
-                                    <small><?= $track['info'] ?></small>
+                                <p class="mb-1"><?= hs($track->desc) ?></p>
+                                <?php if($track->info): ?>
+                                    <small><?= $track->info ?></small>
                                 <?php endif; ?>
                             </li>
                             <?php endforeach; ?>

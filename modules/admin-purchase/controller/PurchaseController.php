@@ -11,9 +11,9 @@ use LibFormatter\Library\Formatter;
 use LibForm\Library\Form;
 use LibPagination\Library\Paginator;
 use Purchase\Model\Purchase;
-use Purchase\Model\PurchasePayment;
+use PurchasePayment\Model\PurchasePayment;
 use Purchase\Model\PurchaseProduct;
-use Purchase\Model\PurchaseDelivery;
+use PurchaseDelivery\Model\PurchaseDelivery;
 use LibCourier\Library\Courier;
 use LibWorker\Library\Worker;
 
@@ -137,9 +137,11 @@ class PurchaseController extends \Admin\Controller
         $params['form']->validate($purchase);
 
         $params['payment'] = null;
-        $payment = PurchasePayment::getOne(['purchase' => $purchase->id]);
-        if ($payment) {
-            $params['payment'] = Formatter::format('purchase-payment', $payment);
+        if (module_exists('purchase-payment')) {
+            $payment = PurchasePayment::getOne(['purchase' => $purchase->id]);
+            if ($payment) {
+                $params['payment'] = Formatter::format('purchase-payment', $payment);
+            }
         }
 
         $params['products'] = null;

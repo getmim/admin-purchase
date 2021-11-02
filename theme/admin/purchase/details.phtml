@@ -166,7 +166,7 @@
                     <?php endif; ?>
                 </div>
             </div>
-            <?php if($purchase->status->value > 2): ?>
+            <?php if(module_exists('purchase-delivery') && $purchase->status->value > 2): ?>
             <div class="card">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">

@@ -35,6 +35,7 @@
                                 <strong>Bill to</strong><br>
                                 <small><?= $purchase->user->fullname ?? $purchase->user->name ?></small>
                             </p>
+                            <?php if(isset($purchase->destination)): ?>
                             <p>
                                 <small>
                                     <?= $purchase->destination->street ?>,
@@ -46,6 +47,7 @@
                                     ( <?= $purchase->destination->phone ?> )
                                 </small>
                             </p>
+                            <?php endif; ?>
                         </div>
                         <div class="col-md-6 text-right">
                             <p><strong>Invoice</strong><br><small><?= $purchase->invoice ?></small></p>
@@ -59,8 +61,10 @@
                                 <th scope="col">Product</th>
                                 <th class="text-right" scope="col">Qty</th>
                                 <th class="text-right" scope="col">Price</th>
+                                <?php if(module_exists('product-tax')): ?>
                                 <th class="text-right" scope="col">Tax</th>
-                                <th class="text-right" scope="col">Amount</th>
+                                <?php endif; ?>
+                                <th class="text-right" scope="col">Total</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -74,9 +78,11 @@
                                     </td>
                                     <td class="text-right"><?= $pitem->quantity->format() ?></td>
                                     <td class="text-right"><?= $pitem->price->format() ?></td>
+                                    <?php if(module_exists('product-tax')): ?>
                                     <td class="text-right">
                                         ( <?= $pitem->tax_percent ?>% ) <?= $pitem->tax_amount->format() ?>
                                     </td>
+                                    <?php endif; ?>
                                     <td class="text-right"><?= $pitem->total->format() ?></td>
                                 </tr>
                             <?php endforeach; ?>
@@ -87,6 +93,7 @@
                                 <td class="text-right">
                                     <strong><?= $purchase->price->format() ?></strong>
                                 </td>
+                                <?php if(module_exists('product-tax')): ?>
                                 <td class="text-right">
                                     <strong><?= $purchase->tax->format() ?></strong>
                                 </td>
@@ -95,8 +102,15 @@
                                         <?= number_format($purchase->price->value + $purchase->tax->value) ?>
                                     </strong>
                                 </td>
+                                <?php else: ?>
+                                <td class="text-right">
+                                    <strong>
+                                        <?= number_format($purchase->price->value) ?>
+                                    </strong>
+                                </td>
+                                <?php endif; ?>
                             </tr>
-                            <?php if($purchase->courier_fee): ?>
+                            <?php if(isset($purchase->courier_fee)): ?>
                                 <tr>
                                     <td colspan="2" class="text-right">
                                         Courier fee

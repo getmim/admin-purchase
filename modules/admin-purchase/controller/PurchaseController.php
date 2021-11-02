@@ -149,9 +149,11 @@ class PurchaseController extends \Admin\Controller
         }
 
         $params['tracks'] = null;
-        $delivery = PurchaseDelivery::getOne(['purchase' => $purchase->id]);
-        if ($delivery) {
-            $params['tracks'] = json_decode($delivery->data);
+        if (module_exists('purchase-delivery')) {
+            $delivery = PurchaseDelivery::getOne(['purchase' => $purchase->id]);
+            if ($delivery) {
+                $params['tracks'] = json_decode($delivery->data);
+            }
         }
 
         $this->resp('purchase/details', $params);

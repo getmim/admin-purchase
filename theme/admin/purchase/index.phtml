@@ -1,3 +1,13 @@
+<?php
+    $status_colors = [
+        30 => ['text-warning', 'Waiting for payment'],
+        40 => ['text-info', 'Payment received'],
+        60 => ['text-primary', 'On the way to customer'],
+        70 => ['text-secondary', 'Received by customer'],
+        80 => ['text-secondary', 'On the way back to merchant'],
+        90 => ['text-secondary', 'Returned back to merchant']
+    ];
+?>
 <nav class="navbar navbar-expand-lg navbar-light bg-white navbar-shadow">
     <div class="navbar-multiline mr-auto">
         <span class="navbar-brand" href="#0">Purchases</span>
@@ -59,40 +69,11 @@
                                     <?= $purchase->user->fullname->safe ?>
                                 </span>
 
-                                <?php if($purchase->status->value == 2): ?>
+                                <?php if(isset($status_colors[$purchase->status->value])): ?>
+                                    <?php $status_color = $status_colors[$purchase->status->value]; ?>
                                     &middot;
-                                    <span title="Status" class="text-warning">
-                                        Waiting for payment
-                                    </span>
-                                <?php endif; ?>
-                                <?php if($purchase->status->value == 3): ?>
-                                    &middot;
-                                    <span title="Status" class="text-info">
-                                        Already paid by customer
-                                    </span>
-                                <?php endif; ?>
-                                <?php if($purchase->status->value == 4): ?>
-                                    &middot;
-                                    <span title="Status" class="text-primary">
-                                        On the way
-                                    </span>
-                                <?php endif; ?>
-                                <?php if($purchase->status->value == 5): ?>
-                                    &middot;
-                                    <span title="Status" class="text-secondary">
-                                        Received by customer
-                                    </span>
-                                <?php endif; ?>
-                                <?php if($purchase->status->value == 6): ?>
-                                    &middot;
-                                    <span title="Status" class="text-secondary">
-                                        On the way back to merchant
-                                    </span>
-                                <?php endif; ?>
-                                <?php if($purchase->status->value == 7): ?>
-                                    &middot;
-                                    <span title="Status" class="text-secondary">
-                                        Returned back to merchant
+                                    <span title="Status" class="<?= $status_color[0] ?>">
+                                        <?= $status_color[1] ?>
                                     </span>
                                 <?php endif; ?>
                             </small>

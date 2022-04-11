@@ -1,13 +1,11 @@
 <?php
-    $status_label = [
-        'Canceled',
-        'Draft',
-        'Waiting for payment',
-        'Already paid by customer',
-        'On the way',
-        'Received by customer',
-        'Returning to seller',
-        'Returned back to seller'
+    $status_labels = [
+        30 => 'Waiting for payment',
+        40 => 'Payment received',
+        60 => 'On the way to customer',
+        70 => 'Received by customer',
+        80 => 'On the way back to merchant',
+        90 => 'Returned back to merchant'
     ];
 ?>
 <nav class="navbar navbar-expand-lg navbar-light bg-white navbar-shadow">
@@ -52,7 +50,7 @@
                         <div class="col-md-6 text-right">
                             <p><strong>Invoice</strong><br><small><?= $purchase->invoice ?></small></p>
                             <p><strong>Date</strong><br><small><?= $purchase->created->format('M d, Y H:i') ?></small></p>
-                            <p><strong>Status</strong><br><small><?= $status_label[$purchase->status->value] ?></small></p>
+                            <p><strong>Status</strong><br><small><?= $status_labels[$purchase->status->value] ?></small></p>
                         </div>
                     </div>
                     <table class="table table-sm">
